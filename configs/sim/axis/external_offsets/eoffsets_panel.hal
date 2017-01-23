@@ -1,0 +1,42 @@
+# existing (basic_sim.tcl) signals for display:
+net J0:pos-cmd => pyvcp.motor-pos-cmd.0-f
+net J1:pos-cmd => pyvcp.motor-pos-cmd.1-f
+net J2:pos-cmd => pyvcp.motor-pos-cmd.2-f
+
+# motor-offset (display only):
+net e:panel-motor-offset.0 <= joint.0.motor-offset => pyvcp.motor-offset.0-f
+net e:panel-motor-offset.1 <= joint.1.motor-offset => pyvcp.motor-offset.1-f
+net e:panel-motor-offset.2 <= joint.2.motor-offset => pyvcp.motor-offset.2-f
+
+# controls for demo (from sim_pin setp, no pin source):
+net e:panel-x-pos-cmd => axis.x.pos-cmd => pyvcp.x-pos-cmd-f
+net e:panel-y-pos-cmd => axis.y.pos-cmd => pyvcp.y-pos-cmd-f
+net e:panel-z-pos-cmd => axis.z.pos-cmd => pyvcp.z-pos-cmd-f
+
+# eoffset (display only):
+net e:panel-x-offset <= pyvcp.x-offset-f => axis.x.eoffset
+net e:panel-y-offset <= pyvcp.y-offset-f => axis.y.eoffset
+net e:panel-z-offset <= pyvcp.z-offset-f => axis.z.eoffset
+
+# offset-request (display only):
+net e:panel-x-offset-request <= axis.x.eoffset-request
+net e:panel-x-offset-request => pyvcp.x-offset-request-f
+
+net e:panel-y-offset-request <= axis.y.eoffset-request
+net e:panel-y-offset-request => pyvcp.y-offset-request-f
+
+net e:panel-z-offset-request <= axis.z.eoffset-request
+net e:panel-z-offset-request => pyvcp.z-offset-request-f
+
+# enables
+net e:panel-x-enable <= pyvcp.x-enable => axis.x.eoffset-enable
+net e:panel-y-enable <= pyvcp.y-enable => axis.y.eoffset-enable
+net e:panel-z-enable <= pyvcp.z-enable => axis.z.eoffset-enable
+
+# scale factors
+net e:panel-x-scale <= pyvcp.x-scale => axis.x.eoffset-scale
+net e:panel-y-scale <= pyvcp.y-scale => axis.y.eoffset-scale
+net e:panel-z-scale <= pyvcp.z-scale => axis.z.eoffset-scale
+
+# pyvcp led:
+net e:limited <= motion.eoffset-limited => pyvcp.limited 

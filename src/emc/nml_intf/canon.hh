@@ -969,4 +969,10 @@ extern void PLUGIN_CALL(int len, const char *call);
 // same for IoTask context
 extern void IO_PLUGIN_CALL(int len, const char *call);
 
+extern int     GET_EXTERNAL_OFFSET_APPLIED();
+extern EmcPose GET_EXTERNAL_OFFSETS();
+
+#define DISALLOW_START_WITH_EXTERNAL_OFFSETS
+#undef  DISALLOW_START_WITH_EXTERNAL_OFFSETS
+
 #endif				/* ifndef CANON_HH */

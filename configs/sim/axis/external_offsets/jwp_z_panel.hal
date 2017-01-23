@@ -1,0 +1,25 @@
+loadrt updown names=zctr
+addf   zctr   servo-thread
+
+net  e:panel-z-plus   <= pyvcp.z-plus            => zctr.countup
+net  e:panel-z-minus  <= pyvcp.z-minus           => zctr.countdown
+net  e:panel-z-counts <= zctr.count              => axis.z.eoffset-counts
+net  e:panel-z-scale  <= pyvcp.z-scale           => axis.z.eoffset-scale
+net  e:panel-z-offset <= axis.z.eoffset          => pyvcp.z-offset-f
+net  e:panel-limited  <= motion.eoffset-limited  => pyvcp.limited 
+net  e:panel-paused   <= halui.program.is-paused => axis.z.eoffset-enable
+net  e:panel-paused                              => pyvcp.paused
+
+loadrt or2 names=or2_a
+addf   or2_a servo-thread
+
+loadrt not names=not_a
+addf   not_a servo-thread
+
+net  e:panel-is-on    <= halui.machine.is-on  => not_a.in
+net  e:panel-is-off   <= not_a.out            => or2_a.in0
+net  e:panel-z-reset  <= or2_a.out            => zctr.reset
+
+# optional reset button (use fixed scale)
+# uncomment here and in jwp_z_panel.xml
+# net  e:panel-z-reset1 <= pyvcp.z-reset        => or2_a.in1

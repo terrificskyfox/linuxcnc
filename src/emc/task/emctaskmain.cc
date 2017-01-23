@@ -60,7 +60,6 @@
 #include <locale.h>
 #include "usrmotintf.h"
 
-
 #if 0
 // Enable this to niftily trap floating point exceptions for debugging
 #include <fpu_control.h>
@@ -969,8 +968,14 @@ static int emcTaskPlan(void)
 		emcTaskQueueCommand(&taskPlanSynchCmd);
 		break;
 
-		// otherwise we can't handle it
+	    case EMC_TASK_PLAN_RUN_TYPE:
+                if (GET_EXTERNAL_OFFSET_APPLIED()) {
+                    // err here, fewer err reports
+		    retval = -1;
+		}
+		break;
 
+		// otherwise we can't handle it
 	    default:
 		emcOperatorError(0, _("can't do that (%s:%d) in manual mode"),
 				 emc_symbol_lookup(type),(int) type);
@@ -2108,6 +2113,19 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		// now queue up command to resynch interpreter
 		emcTaskQueueCommand(&taskPlanSynchCmd);
 	    }
+            if  (   GET_EXTERNAL_OFFSET_APPLIED()
+                 && (   (mode_msg->mode == EMC_TASK_MODE_AUTO)
+                     || (mode_msg->mode == EMC_TASK_MODE_MDI) ) ) {
+#ifdef DISALLOW_START_WITH_EXTERNAL_OFFSETS
+                emcOperatorError(0, _("Cannot start with EXTERNAL OFFSETS applied"));
+                retval = -1;
+                break;
+#else
+                //use just for testing
+                //emcOperatorError(0, _("Starting with EXTERNAL OFFSETS applied"));
+#endif
+            }
+
 	    retval = emcTaskSetMode(mode_msg->mode);
 	}
 	break;
@@ -2144,6 +2162,14 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_TASK_PLAN_EXECUTE_TYPE:
+	if (GET_EXTERNAL_OFFSET_APPLIED()) {
+#ifdef DISALLOW_START_WITH_EXTERNAL_OFFSETS
+	    retval = -1;
+	    break;
+#else
+            // keep going
+#endif
+	}
 	stepping = 0;
 	steppingWait = 0;
 	execute_msg = (EMC_TASK_PLAN_EXECUTE *) cmd;
@@ -2526,8 +2552,17 @@ static int emcTaskExecute(void)
 	stepping = 0;
 	steppingWait = 0;
 
-	// now queue up command to resynch interpreter
-	emcTaskQueueCommand(&taskPlanSynchCmd);
+        if (GET_EXTERNAL_OFFSET_APPLIED()) {
+#ifdef DISALLOW_START_WITH_EXTERNAL_OFFSETS
+            emcOperatorError(0,"STOP:\nQueueBuster & EXTERNAL OFFSETS");
+#else
+	    // do nothing
+            emcOperatorError(0,"STOP:\nQueueBuster & EXTERNAL OFFSETS");
+#endif
+        } else {
+	    // now queue up command to resynch interpreter
+            emcTaskQueueCommand(&taskPlanSynchCmd);
+        }
 
 	retval = -1;
 	break;

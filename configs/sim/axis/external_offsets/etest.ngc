@@ -1,0 +1,34 @@
+  #<xmax> =   10
+  #<ymax> =    5
+#<zdepth> =    0
+  #<feed> =   50
+
+#<x1> = [0.25 * #<xmax>]
+#<y1> = [0.66 * #<ymax>]
+#<z1> = 0
+
+#<x2> = [0.50 * #<xmax>]
+#<y2> = [0.33 * #<ymax>]
+#<z2> = -.5
+
+#<x3> = [0.75 * #<xmax>]
+#<y3> = [0.33 * #<ymax>]
+#<z3> = 0
+
+m111 ;clear notifications
+g61
+g0x0y0z0
+
+f #<feed>
+g1 x #<x1>      y #<y1>    z #<z1>
+g1 x #<x2>      y #<y2>    z #<z2>
+
+(debug, m66 queuebuster)
+m66p0l0   ;QB wait on input l0=imediate
+
+g1 x #<x3>      y #<y3>    z #<z3>
+g1 x #<xmax>    y #<ymax>
+g0x0y0z0
+
+m111 ;clear notifications
+m2

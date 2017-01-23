@@ -194,9 +194,19 @@ int emcTaskAbort()
     stepping = 0;
     steppingWait = 0;
 
+#ifdef DISALLOW_START_WITH_EXTERNAL_OFFSETS
+    if (GET_EXTERNAL_OFFSET_APPLIED()) {
+        emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+    } else {
+        // now queue up command to resynch interpreter
+        EMC_TASK_PLAN_SYNCH taskPlanSynchCmd;
+        emcTaskQueueCommand(&taskPlanSynchCmd);
+    }
+#else
     // now queue up command to resynch interpreter
     EMC_TASK_PLAN_SYNCH taskPlanSynchCmd;
     emcTaskQueueCommand(&taskPlanSynchCmd);
+#endif
 
     // without emcTaskPlanClose(), a new run command resumes at
     // aborted line-- feature that may be considered later
@@ -496,9 +506,13 @@ int emcTaskPlanSetBlockDelete(bool state)
     return 0;
 }
 
+
 int emcTaskPlanSynch()
 {
     int retval = interp.synch();
+    if (retval == INTERP_ERROR) {
+        emcTaskAbort();
+    }
 
     if (emc_debug & EMC_DEBUG_INTERP) {
         rcs_print("emcTaskPlanSynch() returned %d\n", retval);
