@@ -656,11 +656,27 @@ proc prompt_copy configname {
         file mkdir $ncfiles ;# tcl: ok if it exists
         set refname  $linuxcnc::NCFILES_DIR
         set linkname [file join $ncfiles examples]
+puts stderr "01dbg: ncfiles=$ncfiles"
+puts stderr "02dbg: refname=$refname"
+puts stderr "03dbg: linkname=$linkname"
+puts stderr "04dbg: exists      [file exists      $linkname]"
+puts stderr "05dbg: isfile      [file isfile      $linkname]"
+puts stderr "06dbg: isdirectory [file isdirectory $linkname]"
+set msg "ok"
+catch {
+  puts stderr "07dbg: type        [file type    $linkname]"
+  puts stderr "08dbg: ls -l       [exec ls -l   $linkname]"
+  puts stderr "09dbg: ls -lLd     [exec ls -lLd $linkname]"
+} msg
+puts stderr "msg=$msg"
         if {[file exists $linkname]} {
           # tcl wont overwrite any existing link, so remove
+puts stderr "10dbg: deleting existing $linkname"
           file delete $linkname
         }
+puts stderr "11dbg: before linking $linkname $refname"
         file link -symbolic $linkname $refname
+puts stderr "12dbg: after linking $linkname $refname"
 
         # liblist: libs used in inifiles for [RS274NGC]SUBROUTINE_PATH
         # example: ngcgui uses lib named ngcgui_lib
